@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<div class="container my-3">
+    <table class="table">
+        <thead>
+        <tr class="text-center thead-dark">
+            <th>No</th>
+            <th style="width:50%">FileName</th>
+    	<th>User</th>
+            <th>DateTime</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if question_list %}
+        {% for question in question_list %}
+        <tr class = "text-center">
+            <td>{{ forloop.counter }}</td>
+            <td class="text-left">
+                <a href="{% url 'pybo:detail' question.id %}">{{ question.subject }}</a>
+
+	    {% if question.answer_set.count > 0 %}
+    	    <span class="text-danger small ml-2">{{ question.answer_set.count }}</span>
+    	    {% endif %}
+
+            </td>
+
+	<td>{{ question.author.username }}</td>  <!-- 글쓴이 추가 -->
+            <td>{{ question.create_date }}</td>
+
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="3">No Data Available.</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+        <a href="{% url 'pybo:question_create' %}" class="btn btn-primary">New SwingData</a>
+
+</div>
+
+{% endblock %}
