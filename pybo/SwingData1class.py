@@ -65,18 +65,16 @@ class SwingData1:
         self.ax1 = self.data[4]
         self.ay1 = self.data[5]
         self.az1 = self.data[6]
-        self.mx = self.data[7]
-        self.my = self.data[8]
-        self.mz = self.data[9]
+        
 
         #팔꿈치 mpu6050
-        self.t2 = self.data[10]
-        self.gx2 = self.data[11]
-        self.gy2 = self.data[12]
-        self.gz2 = self.data[13]
-        self.ax2 = self.data[14]
-        self.ay2 = self.data[15]
-        self.az2 = self.data[16]
+        self.t2 = self.data[7]
+        self.gx2 = self.data[8]
+        self.gy2 = self.data[9]
+        self.gz2 = self.data[10]
+        self.ax2 = self.data[11]
+        self.ay2 = self.data[12]
+        self.az2 = self.data[13]
 
         self.attr = SwingAttribute(self)
 
@@ -230,19 +228,15 @@ def GetData(url):
     ay = [data[i][5] for i in l]
     az = [data[i][6] for i in l]
 
-    mx = [data[i][7] for i in l]
-    my = [data[i][8] for i in l]
-    mz = [data[i][9] for i in l]
+    t1 = [data[i][7] for i in l]
 
-    t1 = [data[i][10] for i in l]
+    gx1 = [data[i][8] for i in l]
+    gy1 = [data[i][9] for i in l]
+    gz1 = [data[i][10] for i in l]
 
-    gx1 = [data[i][11] for i in l]
-    gy1 = [data[i][12] for i in l]
-    gz1 = [data[i][13] for i in l]
-
-    ax1 = [data[i][14] for i in l]
-    ay1 = [data[i][15] for i in l]
-    az1 = [data[i][16] for i in l]
+    ax1 = [data[i][11] for i in l]
+    ay1 = [data[i][12] for i in l]
+    az1 = [data[i][13] for i in l]
 
 
     #mpu 9250의 gyro, 가속도, 자기장
@@ -256,10 +250,6 @@ def GetData(url):
     ay = ToNumpy(ay)
     az = ToNumpy(az)
 
-    mx = ToNumpy(mx)
-    my = ToNumpy(my)
-    mz = ToNumpy(mz)
-
 
     #mpu 6050의 gyro, 가속도
     t1 = ToNumpy(t1)
@@ -272,7 +262,7 @@ def GetData(url):
     ay1 = ToNumpy(ay1)
     az1 = ToNumpy(az1)
 
-    return [t, gx, gy, gz, ax, ay, az, mx, my, mz, t1, gx1, gy1, gz1, ax1, ay1, az1]
+    return [t, gx, gy, gz, ax, ay, az, t1, gx1, gy1, gz1, ax1, ay1, az1]
 
 
 
