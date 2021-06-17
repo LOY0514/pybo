@@ -98,6 +98,7 @@ def question_create(request):
             question.grade = question.elbowCheck + question.dampCheck + question.vibCheck + question.rlTimeCheck
             
             mainData.plot_save()
+            mainData.save()
             
             """
             data = [[1 for i in range(500)] for i in range(17)]
