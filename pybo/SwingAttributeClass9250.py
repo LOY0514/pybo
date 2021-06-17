@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-15:44
+18:00
 SwingAttribute class 정의하는 파일
 SwingData1(mag 포함) class 정의하는 파일과 같은 폴더에 있어야 될 거 같음?! 모르겠다..
 """
@@ -24,7 +24,7 @@ def slope(dataArr, timeArr, i):
 
     return slope
 
-
+'''
 def curv(dataArr, timeArr, i):
 
     slope1 = slope(dataArr, timeArr, i)
@@ -34,7 +34,61 @@ def curv(dataArr, timeArr, i):
     k = (slope2 - slope1) / dt
 
     return k
+'''
 
+
+def angleShift(gArr, tArr, a, b):
+    '''
+    gArr[a] ~ gArr[b]까지 적분 한 결과: angleShift [deg] 반환
+    '''
+    angleShifted = [0.0]
+    dt = 0.0
+    for i in range(a, b-1):
+        dt = tArr[i+1] - tArr[i]
+        dt /= 1000
+        ShiftVal = gArr[i] * dt
+        angleVal = angleShifted[i-a] + ShiftVal
+        angleShifted.append(angleVal)
+
+    return angleShifted[b-a-1]
+
+
+def angleTilt(gx, gz, i):
+    '''
+    지면과 이루는 각도
+
+    '''
+    return 0
+
+
+import numpy
+
+from math import atan, pi
+
+def Raw_to_RPY(t, gx, gy, gz, ax, ay, az, alpha = 0.1, calibration = False):
+
+    if calibration:
+        alpha = 1
+
+    l = len(t)
+
+    R_acc = [atan(ay[i] / (ay[i]**2 + az[i]**2)**0.5) * 180 / pi for i in range(l)]
+    P_acc = [atan(ax[i] / (ay[i]**2+az[i]**2)**0.5) * 180 / pi for i in range(l)]
+    Y_acc = [atan(az[i]/(ax[i]**2 + az[i]**2)**2 / 1) * 180 / pi for i in range(l)]
+
+    R_gyro = [0]
+    P_gyro = [0]
+    Y_gyro = [0]
+    for i in range(len(t) - 1):
+        R_gyro.append(R_gyro[i] + (t[i+1] - t[i]) * gx[i]/1000)
+        P_gyro.append(P_gyro[i] + (t[i+1] - t[i]) * gy[i]/1000)
+        Y_gyro.append(Y_gyro[i] + (t[i+1] - t[i]) * gz[i]/1000)
+
+    R = [R_gyro[i] * (1-alpha) + R_acc[i] * alpha for i in range(l)]
+    P = [P_gyro[i] * (1-alpha) + P_acc[i] * alpha for i in range(l)]
+    Y = [Y_gyro[i] * (1-alpha) + Y_acc[i] * alpha for i in range(l)]
+
+    return [R, P, Y]
 
 
 class SwingDataPoint:
@@ -97,14 +151,12 @@ class SwingAttribute:
 
     def __init__(self, swingData):
 
-        self.istest = True
+        self.istest = False
 
         '''
-
         ************************************
         test용 데이터는 아랫줄 주석 풀고 사용!!
         ************************************
-
         '''
 
         #self.istest = True    #test용 데이터 아닌 경우 주석처리!!!
@@ -130,7 +182,6 @@ class SwingAttribute:
         self.dampCheck = self.dampCheckFn()
         self.vibCheck = self.vibCheckFn()
         self.backAngCheck = self.backAngCheckFn()
-        self.rlAngCheck = self.rlAngCheckFn()
 
 
 
@@ -183,6 +234,7 @@ class SwingAttribute:
         downSwingPoint = SwingDataPoint(self.swingData, downSwingIndex)
 
         return downSwingPoint
+
 
     def backSwingBtmPoint(self, latestIndex):
 
@@ -259,6 +311,7 @@ class SwingAttribute:
 
         return fwdSwingBtmPoint
 
+
     def releasePoint(self, latestIndex):
 
         if self.istest:
@@ -306,6 +359,7 @@ class SwingAttribute:
 
         return flThrTopPoint
 
+
     """--------------------Checklist Fn---------------------"""
 
     def elbowCheckFn(self):
@@ -328,7 +382,6 @@ class SwingAttribute:
             elbowCheckResult = 0
 
         return elbowCheckResult
-
 
 
     def dampCheckFn(self):
@@ -376,30 +429,50 @@ class SwingAttribute:
         # 첫 번째 진폭의 크기가 충분한가?
         ths1 = 200.0
         if amp1 < ths1:
-            #return dampCheckResult
-            return [dampCheckResult, zeroIndex1, zeroIndex2, amp1, amp2]
+            return dampCheckResult
+            #return [dampCheckResult, zeroIndex1, zeroIndex2, amp1, amp2]
 
         # 두 번째 진폭의 크기가 첫 번째와 비교했을 때 충분한가?
         ths2 = 0.35
         if abs(amp2 / amp1) < ths2:
-            #return dampCheckResult
-            return [dampCheckResult, zeroIndex1, zeroIndex2, amp1, amp2]
+            return dampCheckResult
+            #return [dampCheckResult, zeroIndex1, zeroIndex2, amp1, amp2]
 
         dampCheckResult = 1
-        return [dampCheckResult, zeroIndex1, zeroIndex2, amp1, amp2]
+        return dampCheckResult
 
 
     def vibCheckFn(self):
 
-        ay1var = 0.0  #gy
+        vibCheckResult = 1
+        ay1var = 0.0  #ay 분산
+        backSwingAy1 = self.swingData.ay1[self.backSwingBtm.index:(self.fwdSwingBtm.index - 10)]
+        ay1var = numpy.var(backSwingAy1)
 
-        return 0
+        if ay1var > 0.05:
+            vibCheckResult = 0
+
+        #return ay1var
+        return vibCheckResult
 
 
     def backAngCheckFn(self):
+        '''
+        backSwingBtm ~ backSwingTop angleShifted 계산
+        gy1 적분
+        ths = ? 보다 커야 ok
+        '''
+        #backAngCheckResult = angleShift(self.swingData.gy1, self.swingData.t1, self.backSwingBtm.index, self.backSwingTop.index)
 
-        return 0
+        #backAngCheckResult = angleShift(self.swingData.gy1, self.swingData.t1, self.backSwingTop.index, self.fwdSwingBtm.index)
 
+        a = self.backSwingBtm.index
+        b = self.backSwingTop.index
+
+        backAngCheckResult = Raw_to_RPY(self.swingData.t1[a:b], self.swingData.gx1[a:b], self.swingData.gy1[a:b], self.swingData.gz1[a:b], self.swingData.ax1[a:b], self.swingData.ay1[a:b], self.swingData.az1[a:b])[1][b-a-1]
+
+        return backAngCheckResult
+        # 각도 [deg] 반환
 
     def rlTimeCheckFn(self):
         '''
@@ -408,85 +481,17 @@ class SwingAttribute:
         이런 경우 또는 이상한 점에 release point가 특정될 경우를 구분하기 위해
         ths보다 rlTime이 크면 특정 시간 반환: 3000
         '''
-
+        rlTimeCheckResult = 1
         rlTime = self.fwdSwingBtm.t1 - self.release.t1
         # 양수 -> release 이후 최하점 / 음수 -> 최하점 이후 release
 
-        '''
-        ths = 500   # fwdSwingBtm과 release 차이가 비정상적으로 클 경우 (점이 잘 안 찍힌 경우)
+        ths = 1000   # fwdSwingBtm과 release 차이가 비정상적으로 클 경우 (점이 잘 안 찍힌 경우)
         if abs(rlTime) > ths:
             rlTime = 3000   # rlTime이 잘 계산되지 않았을 때 반환할 특정한 값
-        '''
 
-        return rlTime
+        if rlTime > 200.0 or rlTime < -100.0:
+            rlTimeCheckResult = 0
 
-
-    def rlAngCheckFn(self):
-
-        return 0.0
-
-
-
-'''
-    def plot(self):
-
-        """
-    스윙 단계별 위치를 SwingData1 plot 위에 표시
-    1. pushAway: 팔꿈치를 앞으로 조금 밀기 시작하는 순간 = gx2>0, gz2<0으로 두 값의 차이가 ths 값을 넘었을 때
-    2. backSwing:
-    - 1(손목이) 백스윙을 시작하는 순간 = gy1>0으로 ths 값을 넘었을 때
-    - 2(팔꿈치가) 백스윙을 시작하는 순간 = gy2>0으로 ths 값을 넘었을 때
-    3. backSwingBtm: 백스윙 중 최저점 = gy1이 증가  감소로 기울기 0 될 때
-    4. backSwingTop: 백스윙탑; 백스윙 중 최고점
-    - 가속도 그래프: X축 가속도가 negative이 된 후 0인 시점(y,z도 0) 이 백스윙탑
-    - 각속도 그래프: 사실 원래대로 각속도가 0인 지점(속도가 0)이 백스윙탑
-    5. fwdSwingBtm: 포워드 스윙 중 최저점 = gy1 최저점
-    6. release: 공을 놓는 시점 = *코치님 데이터에서 y축 가속도 발생하는(negative값) 지점이 릴리스 포인트* (확실치는 X?)
-    7. flThrTop: 팔로우 스루 중 최고점 = gy1 = 0
-    8. flThrDamp: 팔로우 스루 중 잔여 스윙? 작은 것이 좋고(힘이 잘 빠졌다는 뜻) 너무 작으면 인위적으로 스윙을 한 것일 수 있으므로 적당한 범위 내일 때 좋다고 판단해야 할 것 같다.
-        """
-
-        plt.subplot(231)
-        plt.plot(self.pushAway.t1, self.pushAway.gx1, label = "pushAway")
-        plt.plot(self.pushAway.t1, self.pushAway.gy1, label = "pushAway")
-        plt.plot(self.pushAway.t1, self.pushAway.gz1, label = "pushAway")
-        plt.plot(self.downSwing1.t1, self.downSwing1.gx1, label = "downSwing")
-        plt.plot(self.downSwing1.t1, self.downSwing1.gy1, label = "downSwing")
-        plt.plot(self.downSwing1.t1, self.downSwing1.gz1, label = "downSwing")
-        plt.plot(self.backSwingBtm.t1, self.backSwingBtm.gx1, label = "backSwingBtm")
-        plt.plot(self.backSwingBtm.t1, self.backSwingBtm.gy1, label = "backSwingBtm")
-        plt.plot(self.backSwingBtm.t1, self.backSwingBtm.gz1, label = "backSwingBtm")
-        plt.plot(self.backSwingTop.t1, self.backSwingTop.gx1, label = "backSwingTop")
-        plt.plot(self.backSwingTop.t1, self.backSwingTop.gy1, label = "backSwingTop")
-        plt.plot(self.backSwingTop.t1, self.backSwingTop.gz1, label = "backSwingTop")
-        plt.plot(self.fwdSwingBtm.t1, self.fwdSwingBtm.gx1, label = "fwdSwingBtm")
-        plt.plot(self.fwdSwingBtm.t1, self.fwdSwingBtm.gy1, label = "fwdSwingBtm")
-        plt.plot(self.fwdSwingBtm.t1, self.fwdSwingBtm.gz1, label = "fwdSwingBtm")
-        plt.plot(self.release.t1, self.release.gx1, label = "release")
-        plt.plot(self.release.t1, self.release.gy1, label = "release")
-        plt.plot(self.release.t1, self.release.gz1, label = "release")
-        plt.plot(self.flThrTop.t1, self.flThrTop.gx1, label = "flThrTop")
-        plt.plot(self.flThrTop.t1, self.flThrTop.gy1, label = "flThrTop")
-        plt.plot(self.flThrTop.t1, self.flThrTop.gz1, label = "flThrTop")
-
-        #plt.subplot(232)
-
-        #plt.subplot(233)
-
-        #plt.subplot(234)
-
-        #plt.subplot(235)
-
-        plt.rcParams["figure.figsize"] = (18.5, 10.5)
-        #plt.clf()
-'''
-
-'''
-    def plot_save(self):
-
-        self.plot()
-        fig = plt.gcf()
-        fig.set_size_inches(18.5, 10.5)
-        plt.savefig("{pB}/plot/{T}/{name}.png".format(pB = pathBase, T = self.Type, name = self.filename.replace(".txt", "")), dpi = 150)
-        plt.clf()
-'''
+        return rlTimeCheckResult
+        #return rlTime
+        # O/X 반환

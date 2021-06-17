@@ -220,7 +220,7 @@ class SwingData1:
         self.plot()
         fig = plt.gcf()
         fig.set_size_inches(18.5, 10.5)
-        plt.savefig("{pB}/pybo/plot/{name}.png".format(pB = "./static", name = "currentplot"), dpi = 150)
+        plt.savefig("{pB}/pybo/plot/{name}.png".format(pB = "./static", name = self.filename.replace(".txt", "")), dpi = 150)
         plt.clf()
 
 
@@ -322,6 +322,6 @@ def MainSwingCheck(loc_url, loc_pathBase, question_name):
     mainFilename = question_name + mainTime + ".txt"
     mainSwingData = SwingData1(mainFilename, mainData, loc_pathBase)
 
-    checklist = {'check1': mainSwingData.attr.elbowCheck, 'check2': mainSwingData.attr.dampCheck, 'check3': mainSwingData.attr.vibCheck, 'check4': mainSwingData.attr.backAngCheck, 'check5': mainSwingData.attr.rlTimeCheck, 'check6': mainSwingData.attr.rlAngCheck}   #1이 좋은 거임, 마지막은 ms(정수), float
+    checklist = {'check1': mainSwingData.attr.elbowCheck, 'check2': mainSwingData.attr.dampCheck, 'check3': mainSwingData.attr.vibCheck, 'check4': mainSwingData.attr.backAngCheck, 'check5': mainSwingData.attr.rlTimeCheck}   #1이 좋은 거임, 마지막은 ms(정수), float
 
     return checklist, mainSwingData
