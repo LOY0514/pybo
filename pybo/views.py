@@ -68,7 +68,7 @@ def question_create(request):
             question.author = request.user
             question.create_date = timezone.now()
             question.save()
-            """
+            
             
             loc_url = "http://192.168.43.106/"
             loc_pathBase = "pybo/SwingData"
@@ -101,7 +101,7 @@ def question_create(request):
             question.backAngCheck = 0
             question.rlTimeCheck = 0
             question.rlAngCheck = 0
-            
+            """
             
             return redirect('pybo:index')
         
