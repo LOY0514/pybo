@@ -219,7 +219,7 @@ class SwingData1:
 
         self.plot()
         fig = plt.gcf()
-        fig.set_size_inches(18.5, 10.5)
+        fig.set_size_inches(18.5, 9,5)
         plt.savefig("{pB}/pybo/plot/{name}.png".format(pB = "./static", name = self.filename.replace(".txt", "")), dpi = 150)
         plt.clf()
 
@@ -317,9 +317,9 @@ def GetData(url):
 
 def MainSwingCheck(loc_url, loc_pathBase, question_name):
     mainData = GetData(loc_url)    #로컬 서버에 올라온 html file에서 데이터 받아와서 SwingData1 객체 형성
-    mainTime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    #mainTime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     #mainDataType = 'ss'    #SwingData1에서 Type component 없앰
-    mainFilename = question_name + mainTime + ".txt"
+    mainFilename = question_name + ".txt"
     mainSwingData = SwingData1(mainFilename, mainData, loc_pathBase)
 
     checklist = {'check1': mainSwingData.attr.elbowCheck, 'check2': mainSwingData.attr.dampCheck, 'check3': mainSwingData.attr.vibCheck, 'check4': mainSwingData.attr.backAngCheck, 'check5': mainSwingData.attr.rlTimeCheck}   #1이 좋은 거임, 마지막은 ms(정수), float

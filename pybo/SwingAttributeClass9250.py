@@ -268,7 +268,7 @@ class SwingAttribute:
     def backSwingTopPoint(self, latestIndex):
 
         if self.istest:
-            backSwingTopPoint = SwingDataPoint(self.swingData, 150)
+            backSwingTopPoint = SwingDataPoint(self.swingData, 180)
             return backSwingTopPoint
 
         '''
@@ -469,7 +469,8 @@ class SwingAttribute:
         a = self.backSwingBtm.index
         b = self.backSwingTop.index
 
-        backAngCheckResult = Raw_to_RPY(self.swingData.t1[a:b], self.swingData.gx1[a:b], self.swingData.gy1[a:b], self.swingData.gz1[a:b], self.swingData.ax1[a:b], self.swingData.ay1[a:b], self.swingData.az1[a:b])[1][b-a-1]
+        backAngCheckResult = Raw_to_RPY(self.swingData.t1[a:b], self.swingData.gx1[a:b], self.swingData.gy1[a:b], self.swingData.gz1[a:b], self.swingData.ax1[a:b], self.swingData.ay1[a:b], self.swingData.az1[a:b])[1][-1]
+
 
         return backAngCheckResult
         # 각도 [deg] 반환

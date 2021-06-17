@@ -15,6 +15,7 @@ app_name = 'pybo'
 urlpatterns = [
     path('', views.index, name = 'index'),
     path('mypage/', views.mypage, name = 'mypage'),
+    path('instruction/', views.instruction, name = 'instruction'),
     
 
     #question_id에 실제로 값을 저장해서 view.detail의 question_id 인수로 전달

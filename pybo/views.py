@@ -12,6 +12,8 @@ from .models import Question, Answer
 from .SwingData1class9250 import MainSwingCheck, SwingData1
 # Create your views here.
 
+from PIL import Image
+
 def index(request):
     
     question_list = Question.objects.order_by('-create_date')
@@ -24,6 +26,14 @@ def detail(request, question_id):
     
     question = Question.objects.get(id=question_id)
     context = {'question': question}
+    
+    current_filename = question.subject
+    try:
+        db_image = Image.open('./static/pybo/plot/' + current_filename + '.png')
+        db_image.save('./static/pybo/plot/currentplot.png')
+    except:
+        pass
+    
     
     return render(request, 'pybo/question_detail.html', context)
 
@@ -77,14 +87,16 @@ def question_create(request):
             checklist = result[0]
             mainData = result[1]
             
+            
             question.elbowCheck = checklist['check1']
             question.dampCheck = checklist['check2']
             question.vibCheck = checklist['check3']
             question.backAngCheck = checklist['check4']
             question.rlTimeCheck = checklist['check5']
-            question.rlAngCheck = checklist['check6']
+            question.rlAngCheck = 0
             
-            mainData.save()
+            question.grade = question.elbowCheck + question.dampCheck + question.vibCheck + question.rlTimeCheck
+            
             mainData.plot_save()
             
             """
@@ -105,6 +117,8 @@ def question_create(request):
             question.rlAngCheck = 0
             """
             
+            question.save()
+            
             return redirect('pybo:index')
         
     else:
@@ -122,3 +136,12 @@ def mypage(request):
     context = {'question_list': user_question}
     
     return render(request, 'pybo/question_list.html', context)
+
+def instruction(request):
+    
+    User = request.user
+    user_question = Question.objects.filter(author=User)
+    
+    context = {'question_list': user_question}
+    
+    return render(request, 'pybo/instruction.html', context)

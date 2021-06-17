@@ -16,6 +16,8 @@ class Question(models.Model):
     backAngCheck = models.DecimalField(max_digits = 10, decimal_places = 5, default = 0.)
     rlTimeCheck = models.IntegerField(default = 0)
     rlAngCheck = models.DecimalField(max_digits = 10, decimal_places = 5, default = 0.)
+    
+    grade = models.IntegerField(default = 0)
 
     def __str__(self):
         return self.subject
