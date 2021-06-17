@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 SwingData1 class 정의하는 파일
-Load_Data 부분 수정 예정(SwingData1 class 안에 넣으면 좋을 것 같)
+mpu9250만 연결된 상태, 7가지 값을 받음
 """
 
 # 업로드할 때마다 바꿔줘야 함
@@ -9,21 +9,21 @@ Load_Data 부분 수정 예정(SwingData1 class 안에 넣으면 좋을 것 같)
 #pathBase = "C:/Users/hp/Desktop/bowlingData0609/"
 
 
-from .SwingAttributeClass import SwingAttribute
+from SwingAttributeClass9250 import SwingAttribute
+
+# 매번 바꿔줘야 함
+#pathBase = "C:/Users/hp/Desktop/bowlingData0609/"  # 하위폴더로 c, ss, so가 있고 그 안에 txt 형태 데이터들이 들어있음
 
 
 import requests
 import numpy as np
 import matplotlib.pyplot as plt
-
-"""
 # title 한글 폰트 사용을 위해서 세팅
 from matplotlib import font_manager, rc
 #font_path = "C:/Windows/Fonts/NGULIM.TTF"
 font_path = "C:/Users/hp/AppData/Local/Microsoft/Windows/Fonts/NotoSansCJKkr-Regular.otf"
 font = font_manager.FontProperties(fname=font_path).get_name()
 rc('font', family=font)
-"""
 
 import datetime
 
@@ -45,15 +45,20 @@ class SwingData1:
     def __init__(self, filename, data, pathBase):
 
         """
-        Type: "c", "so", "ss", "t"(test/그 외) by dataType input
 
-        filename: Type + name input + time input + ".txt"
+        *input*
 
-        data: url에서 request -> array(17*length)
+        filename: django에서 입력한 이름 + ".txt"
+
+        data: url에서 request -> array(7*501)
+
+        pathBase: 저장할 최하위 폴더 path
 
         """
 
+        #self.Type = Type
         self.filename = filename
+        self.pB = pathBase
         self.path = pathBase + "/" + filename
         self.data = data
 
@@ -61,12 +66,15 @@ class SwingData1:
         self.t1 = self.data[0]
         self.gx1 = self.data[1]
         self.gy1 = self.data[2]
+
+        #self.gy1 = self.
+
         self.gz1 = self.data[3]
         self.ax1 = self.data[4]
         self.ay1 = self.data[5]
         self.az1 = self.data[6]
-        
 
+        '''
         #팔꿈치 mpu6050
         self.t2 = self.data[7]
         self.gx2 = self.data[8]
@@ -75,6 +83,7 @@ class SwingData1:
         self.ax2 = self.data[11]
         self.ay2 = self.data[12]
         self.az2 = self.data[13]
+        '''
 
         self.attr = SwingAttribute(self)
 
@@ -95,39 +104,38 @@ class SwingData1:
 
     def plot(self):
 
-        plt.subplot(231)
+        plt.subplot(121)
         plt.plot(self.t1, self.gx1, label = "x")
         plt.plot(self.t1, self.gy1, label = "y")
         plt.plot(self.t1, self.gz1, label = "z")
-        plt.plot([self.attr.pushAway.t1, self.attr.pushAway.t1, self.attr.pushAway.t1], [self.attr.pushAway.gx1, self.attr.pushAway.gy1,self.attr.pushAway.gz1], '.', label = "pushAway")
-        plt.plot([self.attr.downSwing1.t1, self.attr.downSwing1.t1, self.attr.downSwing1.t1], [self.attr.downSwing1.gx1, self.attr.downSwing1.gy1, self.attr.downSwing1.gz1], '.', label = "downSwing")
-        plt.plot([self.attr.downSwing2.t1, self.attr.downSwing2.t1, self.attr.downSwing2.t1], [self.attr.downSwing2.gx1, self.attr.downSwing2.gy1, self.attr.downSwing2.gz1], '.', label = "downSwing2")
-
+        #plt.plot([self.attr.pushAway.t1, self.attr.pushAway.t1, self.attr.pushAway.t1], [self.attr.pushAway.gx1, self.attr.pushAway.gy1,self.attr.pushAway.gz1], '.', label = "pushAway")
+        plt.plot([self.attr.downSwing1.t1, self.attr.downSwing1.t1, self.attr.downSwing1.t1], [self.attr.downSwing1.gx1, self.attr.downSwing1.gy1, self.attr.downSwing1.gz1], 'x', label = "downSwing")
+        #plt.plot([self.attr.downSwing2.t1, self.attr.downSwing2.t1, self.attr.downSwing2.t1], [self.attr.downSwing2.gx1, self.attr.downSwing2.gy1, self.attr.downSwing2.gz1], '.', label = "downSwing2")
         plt.plot([self.attr.backSwingBtm.t1, self.attr.backSwingBtm.t1, self.attr.backSwingBtm.t1], [self.attr.backSwingBtm.gx1, self.attr.backSwingBtm.gy1, self.attr.backSwingBtm.gz1], 'x', label = "backSwingBtm")
-
-        plt.plot([self.attr.backSwingTop.t1, self.attr.backSwingTop.t1, self.attr.backSwingTop.t1], [self.attr.backSwingTop.gx1, self.attr.backSwingTop.gy1, self.attr.backSwingTop.gz1], '.', label = "backSwingTop")
-        plt.plot([self.attr.fwdSwingBtm.t1, self.attr.fwdSwingBtm.t1, self.attr.fwdSwingBtm.t1], [self.attr.fwdSwingBtm.gx1, self.attr.fwdSwingBtm.gy1, self.attr.fwdSwingBtm.gz1], '.', label = "fwdSwingBtm")
-        plt.plot([self.attr.release.t1, self.attr.release.t1, self.attr.release.t1], [self.attr.release.gx1, self.attr.release.gy1, self.attr.release.gz1], '.', label = "release")
-        plt.plot([self.attr.flThrTop.t1, self.attr.flThrTop.t1, self.attr.flThrTop.t1], [self.attr.flThrTop.gx1, self.attr.flThrTop.gy1, self.attr.flThrTop.gz1], '.', label = "flThrTop")
-        plt.legend(loc='upper right', bbox_to_anchor=(1,1))
+        plt.plot([self.attr.backSwingTop.t1, self.attr.backSwingTop.t1, self.attr.backSwingTop.t1], [self.attr.backSwingTop.gx1, self.attr.backSwingTop.gy1, self.attr.backSwingTop.gz1], 'x', label = "backSwingTop")
+        plt.plot([self.attr.fwdSwingBtm.t1, self.attr.fwdSwingBtm.t1, self.attr.fwdSwingBtm.t1], [self.attr.fwdSwingBtm.gx1, self.attr.fwdSwingBtm.gy1, self.attr.fwdSwingBtm.gz1], 'x', label = "fwdSwingBtm")
+        plt.plot([self.attr.release.t1, self.attr.release.t1, self.attr.release.t1], [self.attr.release.gx1, self.attr.release.gy1, self.attr.release.gz1], 'o', label = "release")
+        plt.plot([self.attr.flThrTop.t1, self.attr.flThrTop.t1, self.attr.flThrTop.t1], [self.attr.flThrTop.gx1, self.attr.flThrTop.gy1, self.attr.flThrTop.gz1], 'x', label = "flThrTop")
+        #plt.legend(loc='upper right', bbox_to_anchor=(1,1))
         plt.xlabel("time[ms]")
         plt.ylabel("gyro by mpu9250[deg/s] (wrist)")
 
-        plt.subplot(232)
+        plt.subplot(122)
         plt.plot(self.t1, self.ax1, label = "x")
         plt.plot(self.t1, self.ay1, label = "y")
         plt.plot(self.t1, self.az1, label = "z")
-        plt.plot([self.attr.pushAway.t1, self.attr.pushAway.t1, self.attr.pushAway.t1], [self.attr.pushAway.ax1, self.attr.pushAway.ay1,self.attr.pushAway.az1], '.', label = "pushAway")
-        plt.plot([self.attr.downSwing1.t1, self.attr.downSwing1.t1, self.attr.downSwing1.t1], [self.attr.downSwing1.ax1, self.attr.downSwing1.ay1, self.attr.downSwing1.az1], '.', label = "downSwing")
-        plt.plot([self.attr.backSwingBtm.t1, self.attr.backSwingBtm.t1, self.attr.backSwingBtm.t1], [self.attr.backSwingBtm.ax1, self.attr.backSwingBtm.ay1, self.attr.backSwingBtm.az1], '.', label = "backSwingBtm")
-        plt.plot([self.attr.backSwingTop.t1, self.attr.backSwingTop.t1, self.attr.backSwingTop.t1], [self.attr.backSwingTop.ax1, self.attr.backSwingTop.ay1, self.attr.backSwingTop.az1], '.', label = "backSwingTop")
-        plt.plot([self.attr.fwdSwingBtm.t1, self.attr.fwdSwingBtm.t1, self.attr.fwdSwingBtm.t1], [self.attr.fwdSwingBtm.ax1, self.attr.fwdSwingBtm.ay1, self.attr.fwdSwingBtm.az1], '.', label = "fwdSwingBtm")
-        plt.plot([self.attr.release.t1, self.attr.release.t1, self.attr.release.t1], [self.attr.release.ax1, self.attr.release.ay1, self.attr.release.az1], '.', label = "release")
-        plt.plot([self.attr.flThrTop.t1, self.attr.flThrTop.t1, self.attr.flThrTop.t1], [self.attr.flThrTop.ax1, self.attr.flThrTop.ay1, self.attr.flThrTop.az1], '.', label = "flThrTop")
-        #plt.legend()
+        #plt.plot([self.attr.pushAway.t1, self.attr.pushAway.t1, self.attr.pushAway.t1], [self.attr.pushAway.ax1, self.attr.pushAway.ay1,self.attr.pushAway.az1], '.', label = "pushAway")
+        plt.plot([self.attr.downSwing1.t1, self.attr.downSwing1.t1, self.attr.downSwing1.t1], [self.attr.downSwing1.ax1, self.attr.downSwing1.ay1, self.attr.downSwing1.az1], 'x', label = "downSwing")
+        plt.plot([self.attr.backSwingBtm.t1, self.attr.backSwingBtm.t1, self.attr.backSwingBtm.t1], [self.attr.backSwingBtm.ax1, self.attr.backSwingBtm.ay1, self.attr.backSwingBtm.az1], 'x', label = "backSwingBtm")
+        plt.plot([self.attr.backSwingTop.t1, self.attr.backSwingTop.t1, self.attr.backSwingTop.t1], [self.attr.backSwingTop.ax1, self.attr.backSwingTop.ay1, self.attr.backSwingTop.az1], 'x', label = "backSwingTop")
+        plt.plot([self.attr.fwdSwingBtm.t1, self.attr.fwdSwingBtm.t1, self.attr.fwdSwingBtm.t1], [self.attr.fwdSwingBtm.ax1, self.attr.fwdSwingBtm.ay1, self.attr.fwdSwingBtm.az1], 'x', label = "fwdSwingBtm")
+        plt.plot([self.attr.release.t1, self.attr.release.t1, self.attr.release.t1], [self.attr.release.ax1, self.attr.release.ay1, self.attr.release.az1], 'o', label = "release")
+        plt.plot([self.attr.flThrTop.t1, self.attr.flThrTop.t1, self.attr.flThrTop.t1], [self.attr.flThrTop.ax1, self.attr.flThrTop.ay1, self.attr.flThrTop.az1], 'x', label = "flThrTop")
+        plt.legend(loc = 'upper left', bbox_to_anchor=(1,1))
         plt.xlabel("time[ms]")
         plt.ylabel("acc by mpu9250[g] (wrist)")
 
+        '''
         plt.subplot(233)
         plt.plot(self.t1, self.mx, label = "x")
         plt.plot(self.t1, self.my, label = "y")
@@ -143,7 +151,7 @@ class SwingData1:
         plt.xlabel("time[ms]")
         plt.ylabel("mag by mpu9250[?] (wrist)")
 
-        plt.subplot(234)
+        plt.subplot(223)
         plt.plot(self.t2, self.gx2, label = "x")
         plt.plot(self.t2, self.gy2, label = "y")
         plt.plot(self.t2, self.gz2, label = "z")
@@ -159,7 +167,7 @@ class SwingData1:
         plt.xlabel("time[ms]")
         plt.ylabel("gyro by mpu6050[deg/s] (elbow)")
 
-        plt.subplot(235)
+        plt.subplot(224)
         plt.plot(self.t2, self.ax2, label = "x")
         plt.plot(self.t2, self.ay2, label = "y")
         plt.plot(self.t2, self.az2, label = "z")
@@ -170,9 +178,10 @@ class SwingData1:
         plt.plot([self.attr.fwdSwingBtm.t2, self.attr.fwdSwingBtm.t2, self.attr.fwdSwingBtm.t2], [self.attr.fwdSwingBtm.ax2, self.attr.fwdSwingBtm.ay2, self.attr.fwdSwingBtm.az2], '.', label = "fwdSwingBtm")
         plt.plot([self.attr.release.t2, self.attr.release.t2, self.attr.release.t2], [self.attr.release.ax2, self.attr.release.ay2, self.attr.release.az2], '.', label = "release")
         plt.plot([self.attr.flThrTop.t2, self.attr.flThrTop.t2, self.attr.flThrTop.t2], [self.attr.flThrTop.ax2, self.attr.flThrTop.ay2, self.attr.flThrTop.az2], '.', label = "flThrTop")
-        #plt.legend(loc='upper left', bbox_to_anchor=(1,1))
+        plt.legend(loc='upper left', bbox_to_anchor=(1,1))
         plt.xlabel("time[ms]")
         plt.ylabel("acc by mpu6050[g] (elbow)")
+        '''
 
         plt.rcParams["figure.figsize"] = (18.5, 10.5)
         plt.suptitle(self.filename.replace(".txt", ""), fontsize = 25)
@@ -184,7 +193,7 @@ class SwingData1:
         self.plot()
         fig = plt.gcf()
         fig.set_size_inches(18.5, 10.5)
-        plt.savefig("./pybo/SwingData/plot/{name}.png".format(self.filename), dpi = 150)
+        plt.savefig("{pB}/plot/{name}.png".format(pB = self.pB, name = self.filename.replace(".txt", "")), dpi = 150)
         plt.clf()
 
 
@@ -228,6 +237,11 @@ def GetData(url):
     ay = [data[i][5] for i in l]
     az = [data[i][6] for i in l]
 
+    '''
+    mx = [data[i][7] for i in l]
+    my = [data[i][8] for i in l]
+    mz = [data[i][9] for i in l]
+
     t1 = [data[i][7] for i in l]
 
     gx1 = [data[i][8] for i in l]
@@ -237,6 +251,7 @@ def GetData(url):
     ax1 = [data[i][11] for i in l]
     ay1 = [data[i][12] for i in l]
     az1 = [data[i][13] for i in l]
+    '''
 
 
     #mpu 9250의 gyro, 가속도, 자기장
@@ -250,6 +265,10 @@ def GetData(url):
     ay = ToNumpy(ay)
     az = ToNumpy(az)
 
+    '''
+    mx = ToNumpy(mx)
+    my = ToNumpy(my)
+    mz = ToNumpy(mz)
 
     #mpu 6050의 gyro, 가속도
     t1 = ToNumpy(t1)
@@ -261,8 +280,11 @@ def GetData(url):
     ax1 = ToNumpy(ax1)
     ay1 = ToNumpy(ay1)
     az1 = ToNumpy(az1)
+    '''
 
-    return [t, gx, gy, gz, ax, ay, az, t1, gx1, gy1, gz1, ax1, ay1, az1]
+    return [t, gx, gy, gz, ax, ay, az]
+    #return [t, gx, gy, gz, ax, ay, az, mx, my, mz, t1, gx1, gy1, gz1, ax1, ay1, az1]
+
 
 
 

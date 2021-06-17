@@ -4,17 +4,16 @@ SwingAttribute class 정의하는 파일
 SwingData1(mag 포함) class 정의하는 파일과 같은 폴더에 있어야 될 거 같음?! 모르겠다..
 """
 
-
+'''
 import matplotlib.pyplot as plt
 
-"""
 # title 한글 폰트 사용을 위해서 세팅
 from matplotlib import font_manager, rc
-font_path = "C:/Windows/Fonts/NGULIM.TTF"
-#font_path = "C:/Users/hp/AppData/Local/Microsoft/Windows/Fonts/NotoSansCJKkr-Regular.otf"
+#font_path = "C:/Windows/Fonts/NGULIM.TTF"
+font_path = "C:/Users/hp/AppData/Local/Microsoft/Windows/Fonts/NotoSansCJKkr-Regular.otf"
 font = font_manager.FontProperties(fname=font_path).get_name()
 rc('font', family=font)
-"""
+'''
 
 def slope(dataArr, timeArr, i):
 
@@ -25,17 +24,23 @@ def slope(dataArr, timeArr, i):
     return slope
 
 
-def mid(dataArr, i):
-    mid = (dataArr[i+1] + dataArr[i]) / 2
-    return mid
+def curv(dataArr, timeArr, i):
+
+    slope1 = slope(dataArr, timeArr, i)
+    slope2 = slope(dataArr, timeArr, i+1)
+    dt = timeArr[i+1] - timeArr[i]
+
+    k = (slope2 - slope1) / dt
+
+    return k
 
 
 
 class SwingDataPoint:
 
     '''
-    SwingData array((1+6+1+6) * (timestep+1))에서
-    특정 index에서의 t1, gx1, ..., az2 값
+    SwingData array((1+6) * (timestep+1))에서
+    특정 index에서의 t1, gx1, ..., az1 값
     '''
 
     def __init__(self, swingdata, index):    #swingdata는 SwingData1 type
@@ -49,20 +54,20 @@ class SwingDataPoint:
         self.ax1 = swingdata.ax1[index]
         self.ay1 = swingdata.ay1[index]
         self.az1 = swingdata.az1[index]
-        self.mx = swingdata.mx[index]
-        self.my = swingdata.my[index]
-        self.mz = swingdata.mz[index]
+        #self.mx = swingdata.mx[index]
+        #self.my = swingdata.my[index]
+        #self.mz = swingdata.mz[index]
         # self.p1 = swingdata.p1[index]    # pitch, roll, yaw 추가
         # self.r1 = swingdata.r1[index]
         # self.y1 = swingdata.y1[index]
 
-        self.t2 = swingdata.t2[index]
-        self.gx2 = swingdata.gx2[index]
-        self.gy2 = swingdata.gy2[index]
-        self.gz2 = swingdata.gz2[index]
-        self.ax2 = swingdata.ax2[index]
-        self.ay2 = swingdata.ay2[index]
-        self.az2 = swingdata.az2[index]
+        #self.t2 = swingdata.t2[index]
+        #self.gx2 = swingdata.gx2[index]
+        #self.gy2 = swingdata.gy2[index]
+        #self.gz2 = swingdata.gz2[index]
+        #self.ax2 = swingdata.ax2[index]
+        #self.ay2 = swingdata.ay2[index]
+        #self.az2 = swingdata.az2[index]
         # self.p2 = swingdata.p2[index]
         # self.r2 = swingdata.r2[index]
         # self.y2 = swingdata.y2[index]
@@ -91,30 +96,49 @@ class SwingAttribute:
 
     def __init__(self, swingData):
 
+        self.istest = False
+
+        '''
+
+        ************************************
+        test용 데이터는 아랫줄 주석 풀고 사용!!
+        ************************************
+
+        '''
+
+        #self.istest = True    #test용 데이터 아닌 경우 주석처리!!!
+
         self.swingData = swingData    #SwingData1 class
 
         # SwingAttribute[1]~[8]: phases
-        self.pushAway = self.pushAwayPoint()
-        self.downSwing1 = self.downSwingPoint(self.pushAway.index, 1)
-        self.downSwing2 = self.downSwingPoint(self.pushAway.index, 2)
+        #self.pushAway = self.pushAwayPoint()
+        self.downSwing1 = self.downSwingPoint(10, 1)
+        #self.downSwing2 = self.downSwingPoint(self.pushAway.index, 2)
         self.backSwingBtm = self.backSwingBtmPoint(self.downSwing1.index)
         self.backSwingTop = self.backSwingTopPoint(self.backSwingBtm.index)
         self.fwdSwingBtm = self.fwdSwingBtmPoint(self.backSwingTop.index)
-        self.release = self.releasePoint(self.fwdSwingBtm.index)
+        self.release = self.releasePoint(self.backSwingTop.index)
         self.flThrTop = self.flThrTopPoint(self.fwdSwingBtm.index)  # release는 정확하게 알 수 없다고 가정하고, fwdSwingBtm을 latestIndex로 사용
-        self.flThrDamp = self.flThrDampRatio(self.flThrTop.index) # 비어있음... 0
+        #self.flThrDamp = self.flThrDampRatio(self.flThrTop.index) # 비어있음... 0
 
         self.elbowCheck = self.elbowCheckFn()
+
+        # vibCheck에 값 필요해서 먼저 계산
+        self.rlTimeCheck = self.rlTimeCheckFn()
+
         self.dampCheck = self.dampCheckFn()
+        self.vibCheck = self.vibCheckFn()
+        self.backAngCheck = self.backAngCheckFn()
+        self.rlAngCheck = self.rlAngCheckFn()
 
 
 
-
+    '''
     def pushAwayPoint(self):
-        '''
-        1. pushAway: 팔꿈치를 앞으로 조금 밀기 시작하는 순간
-        = gx2>0, gz2<0으로 두 값의 차이가 ths 값을 넘었을 때
-        '''
+
+        #1. pushAway: 팔꿈치를 앞으로 조금 밀기 시작하는 순간
+        #= gx2>0, gz2<0으로 두 값의 차이가 ths 값을 넘었을 때
+
 
         ths = 10.0    # gyro (단위 deg/s)
         pushAwayIndex = 0
@@ -127,34 +151,43 @@ class SwingAttribute:
         pushAwayPoint = SwingDataPoint(self.swingData, pushAwayIndex)
 
         return pushAwayPoint
+    '''
 
     def downSwingPoint(self, latestIndex, loc):
 
+        if self.istest:
+            downSwingPoint = SwingDataPoint(self.swingData, 100)
+            return downSwingPoint
         '''
-        2. backSwing:
+        2. downSwing:
             - loc = 1 (손목이) 백스윙 시작하는 순간 = gy1>ths
-            - loc = 2 (팔꿈치가) 백스윙 시작하는 순간 = gy2>ths
         '''
 
-        ths = 20.0    # gyro (단위 deg/s)
+        ths = 30.0    # gyro (단위 deg/s)
         downSwingIndex = latestIndex
 
         if loc == 1:
-            for i in range(downSwingIndex, len(self.swingData.t1)):
+            for i in range(downSwingIndex, len(self.swingData.t1)-1):
                 downSwingIndex += 1
                 if (self.swingData.gy1[i] > ths):
                     break
+        '''
         elif loc == 2:
             for i in range(downSwingIndex, len(self.swingData.t1)):
                 downSwingIndex += 1
                 if (self.swingData.gy2[i] > ths):
                     break
+        '''
 
         downSwingPoint = SwingDataPoint(self.swingData, downSwingIndex)
 
         return downSwingPoint
 
     def backSwingBtmPoint(self, latestIndex):
+
+        if self.istest:
+            backSwingBtmPoint = SwingDataPoint(self.swingData, 150)
+            return backSwingBtmPoint
         '''
         3. backSwingBtm: 백스윙 중 최저점 = gy1이 증가 -> 감소로 기울기 0 될 때
         '''
@@ -178,7 +211,13 @@ class SwingAttribute:
 
         return backSwingBtmPoint
 
+
     def backSwingTopPoint(self, latestIndex):
+
+        if self.istest:
+            backSwingTopPoint = SwingDataPoint(self.swingData, 150)
+            return backSwingTopPoint
+
         '''
         4. backSwingTop: 백스윙탑; 백스윙 중 최고점
         - 가속도 그래프: X축 가속도가 negative이 된 후 0인 시점(y,z도 0) 이 백스윙탑
@@ -198,7 +237,13 @@ class SwingAttribute:
 
         return backSwingTopPoint
 
+
     def fwdSwingBtmPoint(self, latestIndex):
+
+        if self.istest:
+            fwdSwingBtmPoint = SwingDataPoint(self.swingData, 200)
+            return fwdSwingBtmPoint
+
         '''
         5. fwdSwingBtm: 포워드 스윙 중 최저점 = gy1 최저점
         '''
@@ -214,53 +259,211 @@ class SwingAttribute:
         return fwdSwingBtmPoint
 
     def releasePoint(self, latestIndex):
+
+        if self.istest:
+            releasePoint = SwingDataPoint(self.swingData, 250)
+            return releasePoint
+
         '''
         6. release: 공을 놓는 시점
-        = 코치님 데이터에서 y축 가속도 발생하는(negative값) 지점이 릴리스 포인트
-        (확실치는 X?)
+        az +값으로 크게 발생하는 지점: 앞으로 손을 털기 때문에 발생
+        release point가 잘 보이지 않을 수 있음: 공을 잘 놓지 못한 것 => index = 501? 500?
         '''
 
-        ths = -0.3    # 가속도 (단위 g)
+        ths = 2.7    # 가속도 (단위 g)
         releaseIndex = latestIndex
 
-        for i in range(releaseIndex, len(self.swingData.t1)):
-            releaseIndex += 1
-            if (self.swingData.ay1[i] < ths):
+        for i in range(releaseIndex, len(self.swingData.t1)-1):
+            if (self.swingData.az1[i] > ths):
                 break
+            releaseIndex += 1
 
         releasePoint = SwingDataPoint(self.swingData, releaseIndex)
 
         return releasePoint
 
+
     def flThrTopPoint(self, latestIndex):
+
+        if self.istest:
+            flThrTopPoint = SwingDataPoint(self.swingData, 300)
+            return flThrTopPoint
+
         '''
         7. flwThrTop: 팔로우 스루 중 최고점 = gy1 = 0
         '''
 
         #ths = 10.0    # 각가속도 (단위 deg/s)
-        releaseIndex = latestIndex
+        flThrTopIndex = latestIndex
 
-        for i in range(releaseIndex, len(self.swingData.t1)):
-            releaseIndex += 1
+        for i in range(flThrTopIndex, len(self.swingData.t1)-2):
+            flThrTopIndex += 1
             if (self.swingData.gy1[i] * self.swingData.gy1[i+1] < 0):
                 break
 
-        releasePoint = SwingDataPoint(self.swingData, releaseIndex)
+        flThrTopPoint = SwingDataPoint(self.swingData, flThrTopIndex)
 
-        return releasePoint
+        return flThrTopPoint
 
-    def flThrDampRatio(self, latestIndex):
+    """--------------------Checklist Fn---------------------"""
+
+    def elbowCheckFn(self):
+
+        elbowCheckResult = 1
+
+        backSwingSlice = 30
+        backSwingGy1 = self.swingData.gy1[self.downSwing1.index : self.backSwingTop.index]
+        backSwingLen = len(backSwingGy1)
+
+        avg = 0.0
+        ths = 1.0
+        #indexj = 0
+        count = 0
+
+        for i in range(backSwingSlice):
+            avg = (backSwingGy1[2*i] + backSwingGy1[backSwingLen - 2*i - 1])/2.0
+            for j in range(2*i+6, backSwingLen - 2*i - 7):
+                #indexj = j
+                if abs(backSwingGy1[j] - avg) < ths:
+                    count += 1
+                    #elbowCheckResult = backSwingGy1[j] - avg
+
+                    #break
+            #if elbowCheckResult == 0:
+            #    break
+
+        return count
+
+
+        '''
+        backSwingIndex = list(range(self.downSwing1.index, self.backSwingTop.index))
+        backSwingGy1 = self.swingData.gy1[self.downSwing1.index : self.backSwingTop.index]
+
+        backSwingCurv = []
+        backSwingIndex.pop(1)
+
+        for i in backSwingIndex:
+            k = curv(self.swingData.gy1, self.swingData.t1, i)
+            backSwingCurv.append(k)
+
+        return backSwingCurv
+        '''
+
+        '''
+        backSwinglenHalf = len(range(self.downSwing1.index, self.backSwingTop.index))//2
+
+        backSwingGy1_1 = self.swingData.gy1[self.downSwing1.index : self.downSwing1.index + backSwinglenHalf]
+        backSwingGy1_2 = self.swingData.gy1[self.downSwing1.index + backSwinglenHalf : self.backSwingTop.index]
+
+        gy1max1index = self.downSwing1.index + backSwingGy1_1.index(max(backSwingGy1_1))
+        gy1max2index = self.downSwing1.index + backSwingGy1_2.index(max(backSwingGy1_2))
+
+        backSwingV = self.swingData.gy1[gy1max1index : gy1max2index]
+
+        backSwingVmin = max(backSwingGy1_1)
+        if len(backSwingV) != 0 :
+            backSwingVmin = min(backSwingV)
+
+        backSwingVdif = min(max(backSwingGy1_1) - backSwingVmin, max(backSwingGy1_2) - backSwingVmin)
+        '''
+
+        return 0
+        #return elbowCheckResult
+
+
+    def dampCheckFn(self):
+        '''
+        힘을 빼고 스윙을 했는가? = flThrTop 이후에도 자연스럽게 스윙이 이어졌는가?
+        flThrTop 이후 gy1 = 0인 지점 2개 찾기
+        두 지점 사이에 진동 진폭 구하기 (max, min of gy1)
+        => 첫 번째 진폭의 크기가 충분한가?
+        => 두 번째 진폭의 크기가 첫 번째의 1/2보다 큰가?
+        둘 다 만족하면 1(좋음), 하나라도 만족 안 하면 0(안 좋)
+        '''
+        dampCheckResult = 0
+        datalen = len(self.swingData.gy1)
+
+        zeroIndex1 = self.flThrTop.index + 5
+        iszero1 = 0
+
+        for i in list(range(self.flThrTop.index + 5, datalen - 10)):
+            if (self.swingData.gy1[i]*self.swingData.gy1[i+1] < 0):
+                iszero1 = 1
+                break
+            zeroIndex1 += 1
+
+        # 첫 번째 zero 점 못 찾았다면 힘 빼지 않아서 잔여 스윙이 충분하지 않은 것으로 판단
+        if iszero1 == 0:
+            return dampCheckResult
+
+        zeroIndex2 = zeroIndex1 + 5
+        iszero2 = 0
+
+        for i in list(range(zeroIndex1 + 5,datalen - 1)):
+            if (self.swingData.gy1[i]*self.swingData.gy1[i+1] < 0):
+                iszero2 = 1
+                break
+            zeroIndex2 += 1
+
+        # 두 번째 zero 점 못 찾았다면 힘 빼지 않아서 잔여 스윙이 충분하지 않은 것으로 판단
+        if iszero2 == 0:
+            return dampCheckResult
+
+        # 진폭 계산
+        amp1 = max(self.swingData.gy1[self.flThrTop.index : zeroIndex1])
+        amp2 = min(self.swingData.gy1[zeroIndex1 : zeroIndex2])
+
+        # 첫 번째 진폭의 크기가 충분한가?
+        ths1 = 200.0
+        if amp1 < ths1:
+            #return dampCheckResult
+            return [dampCheckResult, zeroIndex1, zeroIndex2, amp1, amp2]
+
+        # 두 번째 진폭의 크기가 첫 번째와 비교했을 때 충분한가?
+        ths2 = 0.35
+        if abs(amp2 / amp1) < ths2:
+            #return dampCheckResult
+            return [dampCheckResult, zeroIndex1, zeroIndex2, amp1, amp2]
+
+        dampCheckResult = 1
+        return [dampCheckResult, zeroIndex1, zeroIndex2, amp1, amp2]
+
+
+    def vibCheckFn(self):
+
+        ay1var = 0.0  #gy
 
         return 0
 
-    def elbowCheckFn(self):
-        elbowCheckResult = 1
-        backSwingindex = range(self.downSwing1.index, self.backSwingTop.index)
 
-        for i in backSwingindex:
-            pass
+    def backAngCheckFn(self):
 
-        return elbowCheckResult
+        return 0
+
+
+    def rlTimeCheckFn(self):
+        '''
+        fwdSwingBtm.t1과 release.t1의 차이 = rlTime (단위: ms) 반환
+        releasePoint()에서 확실한 release point 알 수 없으면 release 시점이 맨끝에 잡히고,
+        이런 경우 또는 이상한 점에 release point가 특정될 경우를 구분하기 위해
+        ths보다 rlTime이 크면 특정 시간 반환: 3000
+        '''
+
+        rlTime = self.fwdSwingBtm.t1 - self.release.t1
+        # 양수 -> release 이후 최하점 / 음수 -> 최하점 이후 release
+
+        '''
+        ths = 500   # fwdSwingBtm과 release 차이가 비정상적으로 클 경우 (점이 잘 안 찍힌 경우)
+        if abs(rlTime) > ths:
+            rlTime = 3000   # rlTime이 잘 계산되지 않았을 때 반환할 특정한 값
+        '''
+
+        return rlTime
+
+
+    def rlAngCheckFn(self):
+
+        return 0.0
 
 
 
