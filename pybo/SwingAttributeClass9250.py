@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+15:44
 SwingAttribute class 정의하는 파일
 SwingData1(mag 포함) class 정의하는 파일과 같은 폴더에 있어야 될 거 같음?! 모르겠다..
 """
@@ -96,7 +97,7 @@ class SwingAttribute:
 
     def __init__(self, swingData):
 
-        self.istest = True
+        self.istest = False
 
         '''
 
@@ -106,7 +107,7 @@ class SwingAttribute:
 
         '''
 
-        self.istest = True    #test용 데이터 아닌 경우 주석처리!!!
+        #self.istest = True    #test용 데이터 아닌 경우 주석처리!!!
 
         self.swingData = swingData    #SwingData1 class
 
@@ -308,68 +309,26 @@ class SwingAttribute:
     """--------------------Checklist Fn---------------------"""
 
     def elbowCheckFn(self):
-        """
+
         elbowCheckResult = 1
 
-        backSwingSlice = 30
         backSwingGy1 = self.swingData.gy1[self.downSwing1.index : self.backSwingTop.index]
         backSwingLen = len(backSwingGy1)
+        backSwingSlice = backSwingLen - 10
 
-        avg = 0.0
-        ths = 1.0
-        #indexj = 0
+        ths = 7.0
         count = 0
 
         for i in range(backSwingSlice):
-            avg = (backSwingGy1[2*i] + backSwingGy1[backSwingLen - 2*i - 1])/2.0
-            for j in range(2*i+6, backSwingLen - 2*i - 7):
-                #indexj = j
-                if abs(backSwingGy1[j] - avg) < ths:
+            for j in range(i+10, backSwingLen - i - 11):
+                if abs(backSwingGy1[j] - backSwingGy1[i]) < ths:
                     count += 1
-                    #elbowCheckResult = backSwingGy1[j] - avg
 
-                    #break
-            #if elbowCheckResult == 0:
-            #    break
-        """
-        count = 1
-        return count
+        if count >= 3:
+            elbowCheckResult = 0
 
+        return elbowCheckResult
 
-        '''
-        backSwingIndex = list(range(self.downSwing1.index, self.backSwingTop.index))
-        backSwingGy1 = self.swingData.gy1[self.downSwing1.index : self.backSwingTop.index]
-
-        backSwingCurv = []
-        backSwingIndex.pop(1)
-
-        for i in backSwingIndex:
-            k = curv(self.swingData.gy1, self.swingData.t1, i)
-            backSwingCurv.append(k)
-
-        return backSwingCurv
-        '''
-
-        '''
-        backSwinglenHalf = len(range(self.downSwing1.index, self.backSwingTop.index))//2
-
-        backSwingGy1_1 = self.swingData.gy1[self.downSwing1.index : self.downSwing1.index + backSwinglenHalf]
-        backSwingGy1_2 = self.swingData.gy1[self.downSwing1.index + backSwinglenHalf : self.backSwingTop.index]
-
-        gy1max1index = self.downSwing1.index + backSwingGy1_1.index(max(backSwingGy1_1))
-        gy1max2index = self.downSwing1.index + backSwingGy1_2.index(max(backSwingGy1_2))
-
-        backSwingV = self.swingData.gy1[gy1max1index : gy1max2index]
-
-        backSwingVmin = max(backSwingGy1_1)
-        if len(backSwingV) != 0 :
-            backSwingVmin = min(backSwingV)
-
-        backSwingVdif = min(max(backSwingGy1_1) - backSwingVmin, max(backSwingGy1_2) - backSwingVmin)
-        '''
-
-        return 0
-        #return elbowCheckResult
 
 
     def dampCheckFn(self):

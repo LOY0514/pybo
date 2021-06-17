@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+15:44
 SwingData1 class 정의하는 파일
 mpu9250만 연결된 상태, 7가지 값을 받음
 """
@@ -9,7 +10,7 @@ mpu9250만 연결된 상태, 7가지 값을 받음
 #pathBase = "C:/Users/hp/Desktop/bowlingData0609/"
 
 
-from .SwingAttribute import SwingAttribute
+from .SwingAttributeClass9250 import SwingAttribute
 
 # 매번 바꿔줘야 함
 #pathBase = "C:/Users/hp/Desktop/bowlingData0609/"  # 하위폴더로 c, ss, so가 있고 그 안에 txt 형태 데이터들이 들어있음
@@ -18,9 +19,9 @@ from .SwingAttribute import SwingAttribute
 import requests
 import numpy as np
 import matplotlib.pyplot as plt
-"""
 # title 한글 폰트 사용을 위해서 세팅
 from matplotlib import font_manager, rc
+"""
 #font_path = "C:/Windows/Fonts/NGULIM.TTF"
 font_path = "C:/Users/hp/AppData/Local/Microsoft/Windows/Fonts/NotoSansCJKkr-Regular.otf"
 font = font_manager.FontProperties(fname=font_path).get_name()
@@ -44,7 +45,7 @@ def Load_Data(path):
 
 class SwingData1:
 
-    def __init__(self, filename, data):
+    def __init__(self, filename, data, pathBase):
 
         """
 
@@ -60,6 +61,7 @@ class SwingData1:
 
         #self.Type = Type
         self.filename = filename
+        self.pB = pathBase
         self.path = "./static/pybo/objects/" + filename
         self.data = data
 
@@ -67,8 +69,8 @@ class SwingData1:
         self.t1 = self.data[0]
         self.gx1 = self.data[1]
         self.gy1 = self.data[2]
-
-        #self.gy1 = self.
+        #그래프 매끈하게 만들기
+        self.gy1 = self.smooth(self.gy1, 6)
 
         self.gz1 = self.data[3]
         self.ax1 = self.data[4]
@@ -94,8 +96,24 @@ class SwingData1:
         self.t2 = [self.t2[i] - self.t1[0] for i in range(len(self.t2))]
         """
 
+    def smooth(self, dataArr, n):
+        arrLen = len(dataArr)
+        smoothArr = []
+        for i in range(n):
+            dataArr.append(dataArr[arrLen - 1])
+
+        for i in range(arrLen):
+            smoothVal = dataArr[i]
+            for j in range(n):
+                smoothVal += dataArr[i + j]
+            smoothVal /= n
+            smoothArr.append(smoothVal)
+
+        return smoothArr
+
+
     def save(self):
-        f = open(self.path + '.txt', 'w', encoding = "utf-16")
+        f = open(self.path, 'w')
         for i in range(len(self.data)):
             for j in range(len(self.data[0])):
                 f.write(str(self.data[i][j]))
@@ -111,6 +129,14 @@ class SwingData1:
         plt.plot(self.t1, self.gz1, label = "z")
         #plt.plot([self.attr.pushAway.t1, self.attr.pushAway.t1, self.attr.pushAway.t1], [self.attr.pushAway.gx1, self.attr.pushAway.gy1,self.attr.pushAway.gz1], '.', label = "pushAway")
         plt.plot([self.attr.downSwing1.t1, self.attr.downSwing1.t1, self.attr.downSwing1.t1], [self.attr.downSwing1.gx1, self.attr.downSwing1.gy1, self.attr.downSwing1.gz1], 'x', label = "downSwing")
+
+        """
+        elbowCheckEnd plotting
+        """
+        #plt.plot(self.t1[self.attr.downSwing1.index + 53], self.gy1[self.attr.downSwing1.index + 53], 's', label = "elbowCheckEnd")
+
+
+
         #plt.plot([self.attr.downSwing2.t1, self.attr.downSwing2.t1, self.attr.downSwing2.t1], [self.attr.downSwing2.gx1, self.attr.downSwing2.gy1, self.attr.downSwing2.gz1], '.', label = "downSwing2")
         plt.plot([self.attr.backSwingBtm.t1, self.attr.backSwingBtm.t1, self.attr.backSwingBtm.t1], [self.attr.backSwingBtm.gx1, self.attr.backSwingBtm.gy1, self.attr.backSwingBtm.gz1], 'x', label = "backSwingBtm")
         plt.plot([self.attr.backSwingTop.t1, self.attr.backSwingTop.t1, self.attr.backSwingTop.t1], [self.attr.backSwingTop.gx1, self.attr.backSwingTop.gy1, self.attr.backSwingTop.gz1], 'x', label = "backSwingTop")
@@ -194,7 +220,7 @@ class SwingData1:
         self.plot()
         fig = plt.gcf()
         fig.set_size_inches(18.5, 10.5)
-        plt.savefig("./static/pybo/plot/currentplot.png".format(name = self.filename.replace(".txt", "")), dpi = 150)
+        plt.savefig("{pB}/pybo/plot/{name}.png".format(pB = "./static", name = "currentplot"), dpi = 150)
         plt.clf()
 
 
@@ -215,7 +241,7 @@ def GetDataFromHTML(html):
 
 #str 배열에서 numpy array 반환
 def ToNumpy(strAry):
-    return np.array(list(map(float, strAry)))
+    return list(map(float, strAry))
 
 
 def GetData(url):

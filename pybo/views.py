@@ -9,7 +9,7 @@ from .forms import QuestionForm, AnswerForm
 
 from .models import Question, Answer
 
-from .SwingData1 import MainSwingCheck, SwingData1
+from .SwingData1class9250 import MainSwingCheck, SwingData1
 # Create your views here.
 
 def index(request):
@@ -71,9 +71,8 @@ def question_create(request):
             
             
             loc_url = "http://192.168.43.106/"
-            loc_pathBase = "pybo/SwingData"
             question_name = question.subject
-            result = MainSwingCheck(loc_url, loc_pathBase, question_name)
+            result = MainSwingCheck(loc_url, "", question_name)
             
             checklist = result[0]
             mainData = result[1]
@@ -84,6 +83,9 @@ def question_create(request):
             question.backAngCheck = checklist['check4']
             question.rlTimeCheck = checklist['check5']
             question.rlAngCheck = checklist['check6']
+            
+            mainData.save()
+            mainData.plot_save()
             
             """
             data = [[1 for i in range(500)] for i in range(17)]
