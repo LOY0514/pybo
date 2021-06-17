@@ -7,7 +7,7 @@
 
 
         <div class="jumbotron">
-            <h2>total grade : {{question.grade}} / 4</h2>
+            <h2>total grade : {{question.grade}} / 3</h2>
             <div class="embed-responsive embed-responsive-16by9">
                 <iframe class="embed-responsive-item" src="/static/pybo/plot/currentplot.png"></iframe>
             </div>
@@ -19,7 +19,9 @@
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
             {% if question.elbowCheck != 0 %}
-            <a class="navbar-brand">elbowCheck = 1</a>
+            <a class="embed-responsive-item" src="/static/button1.png">
+                팔꿈치가 펴지기 전에 백스윙이 이루어졌나요? (O)
+            </a>
             <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -29,7 +31,10 @@
                     <li class="nav-item ">
                         <div class="container">
 
-                            <div>{{question.elbowCheck}}</div>
+                            <div>백스윙을 하기 전에 팔꿈치가 완전히 펴지면 팔 부상의 위험이 있습니다. 
+                            백스윙을 하기 전에 팔꿈치가 자연스럽게 먼저 뒤로 가는 것을 느끼셨다면 
+                            팔꿈치 부상 없이 안전하게 스윙을 한 것입니다.
+                            </div>
 
                         </div>
                     </li>
@@ -37,7 +42,7 @@
             </div>
 
             {% else %}
-            <a class="navbar-brand">elbowCheck = 0</a>
+            <a class="navbar-brand">팔꿈치가 펴지기 전에 백스윙이 이루어졌나요? (X)</a>
             <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -47,7 +52,13 @@
                     <li class="nav-item ">
                         <div class="container">
 
-                            <div>{{question.elbowCheck}}</div>
+                            <div>
+                                백스윙을 하기 전에 팔꿈치가 완전히 펴지면 팔 부상의 위험이 있습니다. 
+                                스윙 중 팔꿈치가 펴지면서 팔에 반동을 주는 것을 느끼셨다면 
+                                팔에 무리가 갔다는 신호입니다. 볼링 공이 큰 원을 그리며 뒤로 갈 때, 
+                                증기기관차의 바퀴처럼 팔꿈치가 동시에 작은 원을 그리며 뒤로 가도록 
+                                신경 쓰면서 스윙을 해보세요!
+                            </div>
 
                         </div>
                     </li>
@@ -60,7 +71,9 @@
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
             {% if question.dampCheck != 0 %}
-            <a class="navbar-brand">dampCheck = 1</a>
+            <a class="navbar-brand">
+                팔에 힘을 뺀 상태로 자연스러운 스윙을 했나요? (O)
+            </a>
             <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -70,7 +83,12 @@
                     <li class="nav-item ">
                         <div class="container">
 
-                            <div>{{question.dampCheck}}</div>
+                            <div>스윙에서 가장 중요한 것은 힘을 빼는 것입니다. 
+                            팔에 힘을 빼고 자연스럽게 스윙을 하면, 공을 릴리즈한 후에도 
+                            팔이 앞뒤로 진자 운동을 하게 됩니다. 
+                            공을 릴리즈한 후에도 자세를 유지하면
+                            자연스러운 스윙이 이루어졌는지 쉽게 확인할 수 있습니다.
+                            </div>
 
                         </div>
                     </li>
@@ -78,7 +96,9 @@
             </div>
 
             {% else %}
-            <a class="navbar-brand">dampCheck = 0</a>
+            <a class="navbar-brand">
+                팔에 힘을 뺀 상태로 자연스러운 스윙을 했나요? (X)
+            </a>
             <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -88,7 +108,14 @@
                     <li class="nav-item ">
                         <div class="container">
 
-                            <div>{{question.dampCheck}}</div>
+                            <div>
+                                스윙에서 가장 중요한 것은 힘을 빼는 것입니다. 
+                                팔에 힘을 빼고 자연스럽게 스윙을 하면, 
+                                공을 릴리즈한 후에도 팔이 앞뒤로 진자 운동을 하게 됩니다. 
+                                계속 팔이 긴장된 상태로 스윙을 하게 된다면, 
+                                연습용 웨이트볼 등을 들고 스윙 연습을 하며 
+                                힘을 풀고 나서 다시 시도해보세요!
+                            </div>
 
                         </div>
                     </li>
@@ -102,7 +129,7 @@
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
             {% if question.vibCheck != 0 %}
-            <a class="navbar-brand">vibCheck = 1</a>
+            <a class="navbar-brand">공을 릴리즈하기 전까지 일관성 있게 스윙을 했나요? (O)</a>
             <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -112,7 +139,13 @@
                     <li class="nav-item ">
                         <div class="container">
 
-                            <div>{{question.vibCheck}}</div>
+                            <div>
+                                릴리즈 포인트 전후 손의 방향에 따라 구질과 공의 진행 방향이 결정됩니다. 
+                                특히 릴리즈 전, 백스윙과 포워드 스윙 중에 팔이 앞을 똑바로 향하지 않고 
+                                좌우로 흔들리면 릴리즈가 불안정해집니다. 
+                                공을 놓기 전과 후 모두 팔이 
+                                같은 평면에서 움직이는 것이 좋습니다.
+                            </div>
 
                         </div>
                     </li>
@@ -120,7 +153,7 @@
             </div>
 
             {% else %}
-            <a class="navbar-brand">vibCheck = 0</a>
+            <a class="navbar-brand">공을 릴리즈하기 전까지 일관성 있게 스윙을 했나요? (X)</a>
             <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -130,7 +163,13 @@
                     <li class="nav-item ">
                         <div class="container">
 
-                            <div>{{question.vibCheck}}</div>
+                            <div>
+                                릴리즈 포인트 전후 손의 방향에 따라 구질과 공의 진행 방향이 결정됩니다. 
+                                특히 릴리즈 전, 백스윙과 포워드 스윙 중에 팔이 앞을 똑바로 향하지 않고 
+                                좌우로 흔들리면 릴리즈가 불안정해집니다. 
+                                공을 던지고자 하는 방향으로 눈과 공이 향하도록 집중하며 
+                                일관성 있는 스윙을 해보세요!
+                            </div>
 
                         </div>
                     </li>
@@ -145,7 +184,9 @@
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
             {% if question.backAngCheck != 0 %}
-            <a class="navbar-brand">backAngCheck</a>
+            <a class="navbar-brand">
+                몸을 숙여 백스윙탑에서 팔이 충분히 올라갔나요?
+            </a>
             <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -155,7 +196,16 @@
                     <li class="nav-item ">
                         <div class="container">
 
-                            <div>{{question.backAngCheck}}</div>
+                            <div>{{question.backAngCheck}}도</div>
+                            <div>
+                                백스윙탑이 높이 있을수록 릴리즈 전까지 볼링공이 더 오래 가속해서
+                                더 빠르고 강력하게 볼링공을 보낼 수 있습니다. 
+                                백스윙 최하점부터 백스윙탑까지 올라가는 적정 각도는 90 ~ 120도지만, 
+                                초보자의 경우 백스윙탑이 낮아 볼링공이 충분히 가속하지 못해 
+                                구속이 느린 경우가 많습니다. 
+                                백스윙탑이 낮게 나왔다면 무릎을 구부리고 몸을 낮춰 
+                                팔이 자연스럽게 뒤로 올라갈 수 있도록 해보세요!
+                            </div>
 
                         </div>
                     </li>
@@ -184,52 +234,6 @@
 
 
 
-
-
-        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-            {% if question.rlTimeCheck != 0 %}
-            <a class="navbar-brand">rlTimeCheck = 1</a>
-            <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse flex-grow-0" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item ">
-                        <div class="container">
-
-                            <div>{{question.rlTimeCheck}}</div>
-
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
-            {% else %}
-            <a class="navbar-brand">rlTimeCheck = 0</a>
-            <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse flex-grow-0" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item ">
-                        <div class="container">
-
-                            <div>{{question.rlTimeCheck}}</div>
-
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            {% endif %}
-        </nav>
-
-
-
-
-
-        
 
 
         <div class="card my-3">

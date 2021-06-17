@@ -95,7 +95,7 @@ def question_create(request):
             question.rlTimeCheck = checklist['check5']
             question.rlAngCheck = 0
             
-            question.grade = question.elbowCheck + question.dampCheck + question.vibCheck + question.rlTimeCheck
+            question.grade = question.elbowCheck + question.dampCheck + question.vibCheck
             
             mainData.plot_save()
             mainData.save()
