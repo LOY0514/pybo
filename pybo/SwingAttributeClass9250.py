@@ -97,7 +97,7 @@ class SwingAttribute:
 
     def __init__(self, swingData):
 
-        self.istest = False
+        self.istest = True
 
         '''
 
