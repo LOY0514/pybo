@@ -96,7 +96,7 @@ class SwingAttribute:
 
     def __init__(self, swingData):
 
-        self.istest = False
+        self.istest = True
 
         '''
 
@@ -106,7 +106,7 @@ class SwingAttribute:
 
         '''
 
-        #self.istest = True    #test용 데이터 아닌 경우 주석처리!!!
+        self.istest = True    #test용 데이터 아닌 경우 주석처리!!!
 
         self.swingData = swingData    #SwingData1 class
 
@@ -308,7 +308,7 @@ class SwingAttribute:
     """--------------------Checklist Fn---------------------"""
 
     def elbowCheckFn(self):
-
+        """
         elbowCheckResult = 1
 
         backSwingSlice = 30
@@ -331,7 +331,8 @@ class SwingAttribute:
                     #break
             #if elbowCheckResult == 0:
             #    break
-
+        """
+        count = 1
         return count
 
 

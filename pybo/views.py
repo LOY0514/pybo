@@ -9,7 +9,7 @@ from .forms import QuestionForm, AnswerForm
 
 from .models import Question, Answer
 
-from .SwingData1class import MainSwingCheck, SwingData1
+from .SwingData1 import MainSwingCheck, SwingData1
 # Create your views here.
 
 def index(request):
@@ -68,7 +68,7 @@ def question_create(request):
             question.author = request.user
             question.create_date = timezone.now()
             question.save()
-            
+            """
             
             loc_url = "http://192.168.43.106/"
             loc_pathBase = "pybo/SwingData"
@@ -91,7 +91,7 @@ def question_create(request):
             data[10] = list(range(500))
             
             filename = question.subject
-            SwingData = SwingData1(filename, data, './pybo/SwingData')
+            SwingData = SwingData1(filename, data)
             SwingData.save()
             SwingData.plot_save()
             
@@ -101,7 +101,7 @@ def question_create(request):
             question.backAngCheck = 0
             question.rlTimeCheck = 0
             question.rlAngCheck = 0
-            """
+            
             
             return redirect('pybo:index')
         

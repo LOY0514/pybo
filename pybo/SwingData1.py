@@ -9,7 +9,7 @@ mpu9250만 연결된 상태, 7가지 값을 받음
 #pathBase = "C:/Users/hp/Desktop/bowlingData0609/"
 
 
-from SwingAttributeClass9250 import SwingAttribute
+from .SwingAttribute import SwingAttribute
 
 # 매번 바꿔줘야 함
 #pathBase = "C:/Users/hp/Desktop/bowlingData0609/"  # 하위폴더로 c, ss, so가 있고 그 안에 txt 형태 데이터들이 들어있음
@@ -18,12 +18,14 @@ from SwingAttributeClass9250 import SwingAttribute
 import requests
 import numpy as np
 import matplotlib.pyplot as plt
+"""
 # title 한글 폰트 사용을 위해서 세팅
 from matplotlib import font_manager, rc
 #font_path = "C:/Windows/Fonts/NGULIM.TTF"
 font_path = "C:/Users/hp/AppData/Local/Microsoft/Windows/Fonts/NotoSansCJKkr-Regular.otf"
 font = font_manager.FontProperties(fname=font_path).get_name()
 rc('font', family=font)
+"""
 
 import datetime
 
@@ -42,7 +44,7 @@ def Load_Data(path):
 
 class SwingData1:
 
-    def __init__(self, filename, data, pathBase):
+    def __init__(self, filename, data):
 
         """
 
@@ -58,8 +60,7 @@ class SwingData1:
 
         #self.Type = Type
         self.filename = filename
-        self.pB = pathBase
-        self.path = pathBase + "/" + filename
+        self.path = "./static/pybo/objects/" + filename
         self.data = data
 
         #손목 mpu9250
@@ -94,7 +95,7 @@ class SwingData1:
         """
 
     def save(self):
-        f = open(self.path, 'w')
+        f = open(self.path + '.txt', 'w', encoding = "utf-16")
         for i in range(len(self.data)):
             for j in range(len(self.data[0])):
                 f.write(str(self.data[i][j]))
@@ -193,7 +194,7 @@ class SwingData1:
         self.plot()
         fig = plt.gcf()
         fig.set_size_inches(18.5, 10.5)
-        plt.savefig("{pB}/plot/{name}.png".format(pB = self.pB, name = self.filename.replace(".txt", "")), dpi = 150)
+        plt.savefig("./static/pybo/plot/currentplot.png".format(name = self.filename.replace(".txt", "")), dpi = 150)
         plt.clf()
 
 
